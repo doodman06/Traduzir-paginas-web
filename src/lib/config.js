@@ -449,11 +449,13 @@ const twpConfig = (function () {
   twpConfig.getCustomSiteDictionary = function (site) {
     //check if a key exists in the map that is in the url
     const customSiteDictionary = twpConfig.get("customSiteDictionary");
-    customSiteDictionary.forEach((value, key) => {
-      if (site.includes(key)) {
+    for(let [key, value] of customSiteDictionary){
+      if(site.includes(key)){
         return value;
       }
-    });
+    }
+    
+    return twpConfig.get("customDictionary");
   }
   twpConfig.addLangToAlwaysTranslate = function (lang, hostname) {
     addInArray("alwaysTranslateLangs", lang);

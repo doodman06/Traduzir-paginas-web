@@ -114,6 +114,7 @@ twpConfig
       const divs = [
         $("#languages"),
         $("#sites"),
+        $("#dictionary"),
         $("#translations"),
         $("#style"),
         $("#hotkeys"),
@@ -567,6 +568,52 @@ twpConfig
       return li;
     }
 
+    function createcustomSiteDictionary(site) {
+      const li = document.createElement("li");
+      li.setAttribute("class", "w3-display-container");
+      li.value = site;
+      li.id = site +"_site";
+      
+      li.textContent = site;
+
+      const button = document.createElement("button");
+      button.setAttribute("class", "w3-button w3-transparent w3-display-topmiddle");
+      button.innerHTML = "Add";
+      //set its id
+      button.id = site +"_site_button";
+      button.onclick = (e) => { 
+        let keyWord = prompt("Enter the keyWord, Minimum two letters ", "");
+        if (!keyWord || keyWord.length < 2) return;
+        keyWord = keyWord.trim().toLowerCase();
+        let customValue = prompt(
+          "(Optional)\nYou can enter a value to replace it , or fill in nothing.",
+          ""
+        );
+        if (!customValue) customValue = "";
+        customValue = customValue.trim();
+        const lir = createcustomDictionary(keyWord, customValue);
+        
+        
+        //append lir to the buttons parent
+        const parentID = e.target.id;
+        //strip the _site_button from the id
+        const parent = document.getElementById(parentID.substring(0, parentID.length - 12) + "_site_ul");
+        parent.appendChild(lir);
+      };
+      li.appendChild(button);
+  
+      const close = document.createElement("span");
+      close.setAttribute("class", "w3-button w3-transparent w3-display-topright");
+      close.innerHTML = "&times;";
+      
+      li.appendChild(close);
+      
+      const ul = document.createElement("ul");
+      ul.id = site +"_site_ul";
+      li.appendChild(ul);
+      return li;
+    }
+
     let customDictionary = twpConfig.get("customDictionary");
     customDictionary = new Map(
       [...customDictionary.entries()].sort((a, b) =>
@@ -591,6 +638,17 @@ twpConfig
       const li = createcustomDictionary(keyWord, customValue);
       $("#customDictionary").appendChild(li);
       twpConfig.addKeyWordTocustomDictionary(keyWord, customValue);
+    };
+
+    $("#addToSiteCustomDictionary").onclick = (e) => {
+      let keyWord = prompt("Enter the URL, Minimum two letters ", "");
+      if (!keyWord || keyWord.length < 2) return;
+      keyWord = keyWord.trim().toLowerCase();
+      //create a new tab with the URL
+      
+      const li = createcustomSiteDictionary(keyWord);
+      $("#customDictionarySite").appendChild(li);
+
     };
 
     // sitesToTranslateWhenHovering

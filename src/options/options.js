@@ -568,6 +568,28 @@ twpConfig
       return li;
     }
 
+    function createcustomDictionaryForSite(site, keyWord, customValue) {
+      const li = document.createElement("li");
+      li.setAttribute("class", "w3-display-container");
+      li.value = keyWord;
+      if (customValue !== "") {
+        li.textContent = keyWord + " ------------------- " + customValue;
+      } else {
+        li.textContent = keyWord;
+      }
+      const close = document.createElement("span");
+      close.setAttribute("class", "w3-button w3-transparent w3-display-right");
+      close.innerHTML = "&times;";
+
+      close.onclick = (e) => {
+        e.preventDefault();
+        twpConfig.removeKeyWordFromSitecustomDictionary(site, keyWord);
+        li.remove();
+      };
+      li.appendChild(close);
+      return li;
+    }
+
     function createcustomSiteDictionary(site) {
       const li = document.createElement("li");
       li.setAttribute("class", "w3-display-container");
@@ -591,7 +613,8 @@ twpConfig
         );
         if (!customValue) customValue = "";
         customValue = customValue.trim();
-        const lir = createcustomDictionary(keyWord, customValue);
+        const siteID = e.target.id.substring(0, e.target.id.length - 12);
+        const lir = createcustomDictionaryForSite(siteID, keyWord, customValue);
         
         
         //append lir to the buttons parent
@@ -599,12 +622,19 @@ twpConfig
         //strip the _site_button from the id
         const parent = document.getElementById(parentID.substring(0, parentID.length - 12) + "_site_ul");
         parent.appendChild(lir);
+        twpConfig.addKeyWordToSitecustomDictionary(site, keyWord, customValue);
       };
       li.appendChild(button);
   
       const close = document.createElement("span");
       close.setAttribute("class", "w3-button w3-transparent w3-display-topright");
       close.innerHTML = "&times;";
+
+      close.onclick = (e) => {
+        e.preventDefault();
+        twpConfig.removeCustomSiteDictionary(site);
+        li.remove();
+      }
       
       li.appendChild(close);
       
@@ -613,6 +643,26 @@ twpConfig
       li.appendChild(ul);
       return li;
     }
+
+    let customDictionarySite = twpConfig.get("customSiteDictionary");
+    //initialize the customSiteDictionry 2D map
+    customDictionarySite = new Map(
+      [...customDictionarySite.entries()].sort((a, b) =>
+        String(a[0]).localeCompare(String(b[0]))
+      ) 
+    );
+    customDictionarySite.forEach(function (map, site) {
+      const li = createcustomSiteDictionary(site);
+      $("#customDictionarySite").appendChild(li);
+      //iterate through the map and add the key value pairs
+      map.forEach(function (customValue, keyWord) {
+        const lir = createcustomDictionaryForSite(site, keyWord, customValue);
+        //append lir to the buttons parent
+        const parent = document.getElementById(site +"_site_ul");
+        parent.appendChild(lir);
+      });
+    });
+
 
     let customDictionary = twpConfig.get("customDictionary");
     customDictionary = new Map(

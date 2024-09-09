@@ -6,7 +6,7 @@ const twpConfig = (function () {
   const defaultTargetLanguages = ["en", "es", "de"];
   /**
    * all configName available
-   * @typedef {"uiLanguage" | "pageTranslatorService" | "textTranslatorService" | "textToSpeechService" | "enabledServices" | "ttsSpeed" | "ttsVolume" | "targetLanguage" | "targetLanguageTextTranslation" | "targetLanguages" | "alwaysTranslateSites" | "neverTranslateSites" | "sitesToTranslateWhenHovering" | "langsToTranslateWhenHovering" | "alwaysTranslateLangs" | "neverTranslateLangs" | "customDictionary" | "showTranslatePageContextMenu" | "showTranslateSelectedContextMenu" | "showButtonInTheAddressBar" | "showOriginalTextWhenHovering" | "showTranslateSelectedButton" | "whenShowMobilePopup" | "useOldPopup" | "darkMode" | "popupBlueWhenSiteIsTranslated" | "popupPanelSection" | "showReleaseNotes" | "dontShowIfIsNotValidText" | "dontShowIfPageLangIsTargetLang" | "dontShowIfPageLangIsUnknown" | "dontShowIfSelectedTextIsTargetLang" | "dontShowIfSelectedTextIsUnknown" | "hotkeys" | "expandPanelTranslateSelectedText" | "translateTag_pre" | "enableIframePageTranslation" | "dontSortResults" | "translateDynamicallyCreatedContent" | "autoTranslateWhenClickingALink" | "translateSelectedWhenPressTwice" | "translateTextOverMouseWhenPressTwice" | "translateClickingOnce" | "enableDiskCache" | "useAlternativeService" | "customServices" | "showMobilePopupOnDesktop" | "popupMobileKeepOnScren" | "popupMobilePosition" | "addPaddingToPage" | "proxyServers"} DefaultConfigNames
+   * @typedef {"uiLanguage" | "pageTranslatorService" | "textTranslatorService" | "textToSpeechService" | "enabledServices" | "ttsSpeed" | "ttsVolume" | "targetLanguage" | "targetLanguageTextTranslation" | "targetLanguages" | "alwaysTranslateSites" | "neverTranslateSites" | "sitesToTranslateWhenHovering" | "langsToTranslateWhenHovering" | "alwaysTranslateLangs" | "neverTranslateLangs" | "customDictionary" | "customSiteDictionary" | "showTranslatePageContextMenu" | "showTranslateSelectedContextMenu" | "showButtonInTheAddressBar" | "showOriginalTextWhenHovering" | "showTranslateSelectedButton" | "whenShowMobilePopup" | "useOldPopup" | "darkMode" | "popupBlueWhenSiteIsTranslated" | "popupPanelSection" | "showReleaseNotes" | "dontShowIfIsNotValidText" | "dontShowIfPageLangIsTargetLang" | "dontShowIfPageLangIsUnknown" | "dontShowIfSelectedTextIsTargetLang" | "dontShowIfSelectedTextIsUnknown" | "hotkeys" | "expandPanelTranslateSelectedText" | "translateTag_pre" | "enableIframePageTranslation" | "dontSortResults" | "translateDynamicallyCreatedContent" | "autoTranslateWhenClickingALink" | "translateSelectedWhenPressTwice" | "translateTextOverMouseWhenPressTwice" | "translateClickingOnce" | "enableDiskCache" | "useAlternativeService" | "customServices" | "showMobilePopupOnDesktop" | "popupMobileKeepOnScren" | "popupMobilePosition" | "addPaddingToPage" | "proxyServers"} DefaultConfigNames
    */
   const defaultConfig = {
     uiLanguage: "default",
@@ -26,6 +26,7 @@ const twpConfig = (function () {
     alwaysTranslateLangs: [],
     neverTranslateLangs: [],
     customDictionary: new Map(),
+    customSiteDictionary: new Map(),
     showTranslatePageContextMenu: "yes",
     showTranslateSelectedContextMenu: "yes",
     showButtonInTheAddressBar: "yes",
@@ -365,6 +366,15 @@ const twpConfig = (function () {
     }
   }
 
+  function addInSiteMap(configName, site, key, value) {
+    let map = twpConfig.get(configName);
+    if (typeof map.get(site) === "undefined") {
+      map.set(site, new Map());
+    }
+    map.get(site).set(key, value);
+    twpConfig.set(configName, map);
+  }
+
   function removeFromArray(configName, value) {
     const array = twpConfig.get(configName);
     const index = array.indexOf(value);
@@ -378,6 +388,14 @@ const twpConfig = (function () {
     const map = twpConfig.get(configName);
     if (typeof map.get(key) !== "undefined") {
       map.delete(key);
+      twpConfig.set(configName, map);
+    }
+  }
+
+  function removeFromSiteMap(configName, site, key) {
+    const map = twpConfig.get(configName);
+    if (typeof map.get(site) !== "undefined" && typeof map.get(site).get(key) !== "undefined") {
+      map.get(site).delete(key);
       twpConfig.set(configName, map);
     }
   }
@@ -413,11 +431,20 @@ const twpConfig = (function () {
   twpConfig.addKeyWordTocustomDictionary = function (key, value) {
     addInMap("customDictionary", key, value);
   };
+  twpConfig.addKeyWordToSitecustomDictionary = function (site, key, value) {
+    addInSiteMap("customSiteDictionary", site, key, value);
+  };
   twpConfig.removeSiteFromNeverTranslate = function (hostname) {
     removeFromArray("neverTranslateSites", hostname);
   };
   twpConfig.removeKeyWordFromcustomDictionary = function (keyWord) {
     removeFromMap("customDictionary", keyWord);
+  };
+  twpConfig.removeKeyWordFromSitecustomDictionary = function (site, keyWord) {
+    removeFromSiteMap("customSiteDictionary", site, keyWord);
+  };
+  twpConfig.removeCustomSiteDictionary = function (site) {
+    removeFromMap("customSiteDictionary", site);
   };
   twpConfig.addLangToAlwaysTranslate = function (lang, hostname) {
     addInArray("alwaysTranslateLangs", lang);

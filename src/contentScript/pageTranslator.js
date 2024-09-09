@@ -64,8 +64,7 @@ function filterKeywordsInText(
             index + keyWord.length
           );
           if (
-            isPunctuationOrDelimiter(previousChar) &&
-            isPunctuationOrDelimiter(nextChar)
+            true
           ) {
             /**
              * Bing's translation engine, officially provides custom dictionary function,

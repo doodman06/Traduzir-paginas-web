@@ -451,7 +451,8 @@ const twpConfig = (function () {
     const customSiteDictionary = twpConfig.get("customSiteDictionary");
     for(let [key, value] of customSiteDictionary){
       if(site.includes(key)){
-        return value;
+        //return the default custom dictionary plus the custom site dictionary, with the custom site dictionary having priority
+        return new Map([...twpConfig.get("customDictionary"), ...value]);
       }
     }
     
